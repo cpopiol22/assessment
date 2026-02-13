@@ -394,3 +394,23 @@ When entering a disallowed character as the first input (e.g., a number or emoji
 Name field validation is generally well implemented — hyphens, apostrophes, accented characters, and spaces are correctly accepted, while numbers, emojis, and garbage input are blocked. The main improvement opportunity is in error message priority: character validation errors should take precedence over length errors to avoid misleading feedback.
 
 ---
+
+## Recommended Edge Cases for Further Testing
+
+The following edge cases were not tested during this session but are recommended for comprehensive coverage:
+
+| Edge case | Why it matters |
+| --- | --- |
+| **Network interruption mid-registration** | What happens if the connection drops between steps? Does the app handle it gracefully or does the user lose progress? |
+| **App backgrounded for extended period** | Does the session expire? Is registration data retained or cleared? |
+| **Copy-paste into fields** | Can field validation be bypassed by pasting invalid data (e.g., pasting a non-numeric string into the phone field)? |
+| **Multiple simultaneous registrations** | Same email/phone registered from two devices at the same time — race condition risk |
+| **Timezone boundary on age check** | User turns 18 in one timezone but not another — is the check server-side or device-side? |
+| **Autofill behavior (iOS/Android)** | Does OS-level autofill interact correctly with field validation, or does it bypass checks? |
+| **VoiceOver / TalkBack accessibility** | Can the full registration flow be completed using screen readers? Are all fields and errors announced? |
+| **Tablet layout** | Is the registration flow properly adapted for tablet screen sizes, or does it stretch/break? |
+| **Dark/light mode switch** | Does the UI render correctly in both modes? What happens if the user switches mode mid-registration? |
+| **Country/VPN restrictions** | Is registration blocked or adapted when accessing from a restricted country (e.g., via VPN)? Betclic operates under a French license — geo-restrictions may apply |
+| **Stress navigation (monkey testing)** | Rapid back/forward navigation, double-tapping buttons, spamming the CTA, swiping during transitions — does the app handle erratic user behavior gracefully without crashes, duplicate submissions, or corrupted state? |
+
+---
