@@ -261,18 +261,18 @@ Age validation is a compliance-critical control in a regulated gambling environm
 
 **Boundary Test Results:**
 
-| Test case                                  | Expected                                       | iOS Result                                         | Android Result                 | Status |
-| ------------------------------------------ | ---------------------------------------------- | -------------------------------------------------- | ------------------------------ | ------ |
-| Only lowercase (e.g., `abcdefgh`)          | Block — missing uppercase + number             | Blocked — 2 rules marked invalid, CTA disabled     | Blocked — same behavior as iOS | ✅ OK  |
-| Only uppercase (e.g., `ABCDEFGH`)          | Block — missing lowercase + number             | Blocked — 2 rules marked invalid, CTA disabled     | Blocked — same behavior as iOS | ✅ OK  |
-| Only numbers (e.g., `12345678`)            | Block — missing lowercase + uppercase          | Blocked — 2 rules marked invalid, CTA disabled     | Blocked — same behavior as iOS | ✅ OK  |
-| 7 characters (e.g., `Abcde1!`)             | Block — too short                              | Blocked — length rule marked invalid, CTA disabled | Blocked — same behavior as iOS | ✅ OK  |
-| 8 characters valid (e.g., `Abcdef1!`)      | Allow — meets all rules                        | Allowed — all rules green, CTA enabled             | Allowed — same behavior as iOS | ✅ OK  |
-| 20 characters valid                        | Allow — meets all rules                        | Allowed — all rules green, CTA enabled             | Allowed — same behavior as iOS | ✅ OK  |
-| 21 characters                              | Block — too long                               | Blocked — length rule marked invalid, CTA disabled | Blocked — same behavior as iOS | ✅ OK  |
-| Special characters only (e.g., `!@#$%^&*`) | Block — missing lowercase + uppercase + number | Blocked — 3 rules marked invalid, CTA disabled     | Blocked — same behavior as iOS | ✅ OK  |
-| Valid password (e.g., `Test1234`)          | Allow — meets all rules                        | Allowed — all rules green, CTA enabled             | Allowed — same behavior as iOS | ✅ OK  |
-| Empty field                                | Block — all rules invalid                      | Blocked — all rules marked invalid, CTA disabled   | Blocked — same behavior as iOS | ✅ OK  |
+| Test case                                  | Expected                                       | iOS Result                                                                                    | Android Result                 | Status |
+| ------------------------------------------ | ---------------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------ | ------ |
+| Only lowercase (e.g., `abcdefgh`)          | Block — missing uppercase + number             | Blocked — 2 rules marked invalid, CTA disabled                                                | Blocked — same behavior as iOS | ✅ OK  |
+| Only uppercase (e.g., `ABCDEFGH`)          | Block — missing lowercase + number             | Blocked — 2 rules marked invalid, CTA disabled                                                | Blocked — same behavior as iOS | ✅ OK  |
+| Only numbers (e.g., `12345678`)            | Block — missing lowercase + uppercase          | Blocked — 2 rules marked invalid, CTA disabled                                                | Blocked — same behavior as iOS | ✅ OK  |
+| 7 characters (e.g., `Abcde1!`)             | Block — too short                              | Blocked — length rule marked invalid, CTA disabled                                            | Blocked — same behavior as iOS | ✅ OK  |
+| 8 characters valid (e.g., `Abcdef1!`)      | Allow — meets all rules                        | Allowed — all rules green, CTA enabled                                                        | Allowed — same behavior as iOS | ✅ OK  |
+| 20 characters valid                        | Allow — meets all rules                        | Allowed — all rules green, CTA enabled                                                        | Allowed — same behavior as iOS | ✅ OK  |
+| 21 characters                              | Block — too long                               | Blocked — length rule marked invalid, CTA disabled                                            | Blocked — same behavior as iOS | ✅ OK  |
+| Special characters only (e.g., `!@#$%^&*`) | Block — missing lowercase + uppercase + number | Blocked — 3 rules marked invalid, CTA disabled                                                | Blocked — same behavior as iOS | ✅ OK  |
+| Valid password (e.g., `Test1234`)          | Allow — meets all rules                        | Allowed — all rules green, CTA enabled                                                        | Allowed — same behavior as iOS | ✅ OK  |
+| Empty field                                | Block — all rules invalid                      | Blocked — all rules marked invalid, CTA disabled                                              | Blocked — same behavior as iOS | ✅ OK  |
 | Password matches username                  | Block — password must differ from username     | Blocked — error displayed: "Ton mot de passe doit être différent de ton pseudo", CTA disabled | Blocked — same behavior as iOS | ✅ OK  |
 
 > **Note:** When the password matches the username, the entire validation checklist disappears and is replaced by a single error message: "Ton mot de passe doit être différent de ton pseudo". The standard rules (lowercase, uppercase, number, length) are no longer visible. This means the user loses all feedback on the other validation criteria while this error is active.
@@ -287,5 +287,56 @@ The registration flow does not include a password confirmation field. On mobile,
 
 **QA Perspective:**
 Password validation is a core security control. Real-time feedback improves UX by guiding the user, but the enforcement must be strict — no bypass should be possible regardless of input method. Note: the app does not appear to enforce special character requirements or check against common/breached passwords, which could be a security improvement opportunity. Additionally, when the password matches the username, the validation checklist is entirely replaced by a single error message — the user loses visibility on all other password rules, which is a UX inconsistency.
+
+---
+
+## Alternative Branch 3 – Mandatory Compliance Toggle Not Activated
+
+**What was tested:** Final registration screen behavior when the mandatory compliance toggle is not activated.
+
+**How to reproduce (based on executed test):**
+
+1. Complete all registration steps up to the final compliance screen ("Dernière étape avant de rejoindre la communauté Betclic").
+2. Leave the mandatory toggle deactivated:
+   - "Je certifie avoir plus de 18 ans. J'ai lu et j'accepte les Conditions Générales et la Politique Vie Privée et Cookies."
+     (I certify I am over 18. I have read and accept the Terms & Conditions and the Privacy & Cookie Policy.)
+3. Attempt to submit the registration via "Rejoindre la communauté" (Join the community).
+
+**Actual result:**
+
+- The "Rejoindre la communauté" button remains disabled (faded) when the mandatory toggle is off.
+- The user cannot submit the form without activating the mandatory toggle.
+- The second toggle — marketing communications ("J'accepte de recevoir les offres spéciales et informations de la part de Betclic") — is optional and does not affect the button state.
+- Referral / promo code section is also optional.
+
+**Evidence (Screenshots):**
+
+| iOS                                                                                      | Android                                                                                          |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| <img src="images/compliance_toggles_ios.png" alt="Compliance toggles – iOS" width="300"> | <img src="images/compliance_toggles_android.jpg" alt="Compliance toggles – Android" width="300"> |
+
+**Expected result:**
+
+- The account creation button must remain disabled until the mandatory compliance toggle is activated.
+- Optional toggle (marketing) must not be required to proceed.
+- The distinction between mandatory and optional toggles must be clear to the user.
+
+---
+
+**Test Results:**
+
+| Test case                                | Expected             | iOS Result                          | Android Result                 | Status |
+| ---------------------------------------- | -------------------- | ----------------------------------- | ------------------------------ | ------ |
+| Mandatory toggle off                     | Block — CTA disabled | CTA disabled (faded)                | CTA disabled — same as iOS     | ✅ OK  |
+| Mandatory toggle on, marketing off       | Allow — CTA enabled  | CTA enabled (marketing is optional) | CTA enabled — same as iOS      | ✅ OK  |
+| Mandatory toggle on, marketing on        | Allow — CTA enabled  | CTA enabled                         | CTA enabled — same as iOS      | ✅ OK  |
+| Mandatory toggle off, marketing on       | Block — CTA disabled | CTA disabled                        | CTA disabled — same as iOS     | ✅ OK  |
+| Tap "les Conditions Générales" link      | Opens T&C document   | Opens in-app (webview) — content loads correctly | Opens in-app (webview) — same as iOS | ✅ OK  |
+| Tap "Politique Vie Privée et Cookies" link | Opens Privacy & Cookie Policy | Opens in-app (webview) — content loads correctly | Opens in-app (webview) — same as iOS | ✅ OK  |
+
+---
+
+**QA Perspective:**
+Compliance toggles are a legal requirement in regulated gambling. The current implementation correctly blocks submission when the mandatory toggle is off. However, the age certification and T&C/Privacy acceptance are bundled into a single toggle — from a regulatory standpoint, some jurisdictions may require these to be separate explicit consents (age verification vs. contractual acceptance vs. privacy policy). Additionally, there is no visual distinction (asterisk, label, or color) between the mandatory and optional toggles, which may cause user confusion.
 
 ---
