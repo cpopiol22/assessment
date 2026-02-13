@@ -586,3 +586,45 @@ The following issues were also observed during testing but are not fully documen
 - **Progress bar fire animation inconsistency across platforms** — the fire emoji on the navigation progress bar is animated on iOS but static on Android, indicating a platform parity gap (Low)
 
 ---
+
+# 7. Overall QA Recommendations
+
+## 1. Simplify the onboarding flow
+
+The current registration flow is too long (15+ steps). Not every step is justified by a regulatory or UX need. Several steps could be consolidated (e.g., first name + last name on a single screen, country + city of birth on a single screen). A shorter flow reduces drop-off risk and improves conversion. Steps that are not strictly required for account creation (e.g., ID upload, address verification) are already deferrable — this approach should be extended where possible.
+
+## 2. Explain regulatory constraints upfront
+
+Users are asked for sensitive information (date of birth, place of birth, ID document, proof of address) without understanding why. Regulatory requirements — age verification (18+), identity checks (anti-fraud, anti-money laundering), address verification — should be explained at the very beginning of the flow, with a clear, transparent consent step. This builds trust and reduces abandonment caused by users feeling uncomfortable sharing personal data without context.
+
+## 3. Add contextual guidance at each step
+
+Each step should briefly explain why the information is requested. For example:
+- Date of birth → "Required by French gambling regulation to verify you are at least 18 years old"
+- ID document → "Required for identity verification under anti-money laundering regulations"
+- Address → "Required to verify your residency for regulatory compliance"
+
+The first name field already includes a tip ("Saisi tes informations comme indiqué sur ta carte d'identité") — this approach should be generalized to all steps, including last name where the tip is currently missing.
+
+## 4. Secure the authentication layer
+
+The current flow has no email confirmation (link or code) and no SMS verification for the phone number. This leaves the account vulnerable to:
+- Typos in email (no way to recover the account)
+- Typos in phone number (potentially blocking another user)
+- Fake or disposable email/phone usage
+
+Adding email verification (confirmation link or code) and SMS verification would significantly strengthen account security and data integrity.
+
+## 5. Open alternative registration paths
+
+The flow currently offers only manual form-based registration. Social login options (Apple, Google, Facebook) would reduce friction, speed up onboarding, and provide verified email/identity data out of the box. This is standard practice in modern mobile apps and would benefit conversion rates.
+
+## 6. Reassess the gender step
+
+The gender selection (Madame/Monsieur) is the very first question in the registration flow, yet it appears to have no functional impact — subsequent text does not adapt to the selection (no feminine agreement), and it is unclear what regulatory or business purpose it serves. Recommendations:
+- Define the purpose of collecting gender data (regulatory requirement, personalization, or data analytics).
+- If required, move it later in the flow — it is not a natural first question.
+- If used for personalization, implement proper French grammar agreement throughout the flow.
+- Consider adding a non-binary or "prefer not to say" option to improve inclusivity.
+
+---
