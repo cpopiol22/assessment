@@ -1,0 +1,9 @@
+# Dependencies
+node_modules/
+
+# Test outputs
+output/
+
+# OS files
+.DS_Store
+Thumbs.db
