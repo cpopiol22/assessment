@@ -1,15 +1,10 @@
 const { footerFragment } = inject();
-let state = {};
+let state: any = {};
 
-Before(() => {
-  state = {};
+When('the user goes to the {string} footer link for {string}', async (linkName: string, item: string) => {
+  await footerFragment.goToFooterLink(item, linkName);
 });
 
-When('the user goes to the link in footer', async (dataTable: any) => {
-  await footerFragment.goToFooterLink(dataTable, state);
+Then('the user should see {string} in the {string} page title', async (expectedTitle: string, item: string) => {
+  await footerFragment.validatePageTitle(item, expectedTitle);
 });
-
-Then('the user should see text content in the page', () => {
-  footerFragment.validateContent(state, 'currentDescription', 'expectedDescription');
-});
-

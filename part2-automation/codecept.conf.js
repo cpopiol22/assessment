@@ -32,6 +32,7 @@ exports.config = {
     termsAndConditionsPage: './pages/terms-and-conditions-page.ts',
     homePage: './pages/home-page.ts',
     responsibleGamingPage: './pages/responsible-gaming-page.ts',
+    privacyPolicyPage: './pages/privacy-policy-page.ts',
     // Proxies
     usersProxy: './proxy/users-proxy.ts'
   },

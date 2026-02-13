@@ -4,7 +4,7 @@ class ResponsibleGamingPage {
 
   // locators
   link = "//bc-footer-links//a[@href='/responsiblegaming']";
-  pageContent = '//div[contains(@class,"listeContent")]//p[2]';
+  pageContent = '//h4[contains(@class,"contentPage_title")]';
 
   // methods
 

@@ -1,44 +1,28 @@
-const { I, homePage, termsAndConditionsPage, responsibleGamingPage } = inject();
+const { I, responsibleGamingPage, termsAndConditionsPage, privacyPolicyPage } = inject();
 
 class FooterFragment {
   // locators
 
+  private pages: Record<string, any> = {
+    responsibleGaming: responsibleGamingPage,
+    termsAndConditions: termsAndConditionsPage,
+    privacyPolicy: privacyPolicyPage,
+  };
+
   // methods
 
-  public async goToFooterLink(dataTable: any, state: any): Promise<void> {
-    let i = 0;
-    while (dataTable.parse().hashes()[i] != undefined) {
-      state["expectedDescription" + i] = dataTable.parse().hashes()[
-        i
-      ].expectedDescription;
-      let buttonLocatorFromGherkin = eval(
-        `${dataTable.parse().hashes()[i].item}Page.${
-          dataTable.parse().hashes()[i].item
-        }Button`
-      );
-      let pageContentLocatorFromGherkin = eval(
-        `${dataTable.parse().hashes()[i].item}Page.pageContent`
-      );
-      await I.scrollTo(buttonLocatorFromGherkin);
-      await I.click(dataTable.parse().hashes()[i].linkName);
-      await I.waitForElement(pageContentLocatorFromGherkin, 10);
-      state["currentDescription" + i] = await I.grabTextFrom(
-        pageContentLocatorFromGherkin
-      );
-      await homePage.goToMainPage();
-      i++;
-    }
+  public async goToFooterLink(item: string, linkName: string): Promise<void> {
+    const page = this.pages[item];
+    await I.scrollTo(page.link);
+    await I.click(linkName);
+    await I.waitForElement(page.pageContent, 10);
   }
 
-  public validateContent(state: any, current: string, expected: string): void {
-    let i = 0;
-    while (state[current + i] != undefined) {
-      I.assertEqual(
-        state[current + i].replace(/\n/g, " ").replace(/ +/g, " ").trim(),
-        state[expected + i]
-      );
-      i++;
-    }
+  public async validatePageTitle(item: string, expectedTitle: string): Promise<void> {
+    const page = this.pages[item];
+    const currentText = await I.grabTextFrom(page.pageContent);
+    const normalizedText = (currentText as string).replace(/\n/g, ' ').replace(/ +/g, ' ').trim();
+    I.assertContain(normalizedText, expectedTitle);
   }
 }
 

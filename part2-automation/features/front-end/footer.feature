@@ -5,10 +5,13 @@ Feature: Footer
   I want to see footer mandatory elements and access to the pages and their content
 
   @linksAndPages
-  Scenario: Links and pages content by ui
+  Scenario Outline: Links and pages content by ui
     Given a user coming to Betclic
-    When the user goes to the link in footer
-      | item               | linkName                           | expectedDescription                                                                                                 |
-      | responsibleGaming  | Jeu responsable                    | La pratique des jeux d’argent est récréative quand elle est avant tout une source de divertissement et d’amusement. |
-      | termsAndConditions | Conditions générales d'utilisation | Veuillez trouver ci-après les Conditions Générales et les Règlements des Jeux en vigueur.                           |
-    Then the user should see text content in the page
+    When the user goes to the "<linkName>" footer link for "<item>"
+    Then the user should see "<expectedTitle>" in the "<item>" page title
+
+    Examples:
+      | item               | linkName                           | expectedTitle                    |
+      | responsibleGaming  | Jeu responsable                    | Le guide Betclic du Jeu responsable    |
+      | termsAndConditions | Conditions générales d'utilisation | Conditions générales des sites Betclic |
+      | privacyPolicy      | Respect de la vie privée           | POLITIQUE VIE PRIVÉE ET COOKIES        |
