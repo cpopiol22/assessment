@@ -16,5 +16,6 @@ Feature: Offering Search
   @atLeastOneResult
   Scenario: At least one result found
     Given a user coming to Betclic
-    When the user searches matches or competitions with the input football
+    # "football" returns no search result as it matches a sport category, not an actual result
+    When the user searches matches or competitions with the input mbappe
     Then the user should see at least one result

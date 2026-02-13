@@ -19,5 +19,5 @@ Then(
 );
 
 Then("the user should see at least one result", async () => {
-  throw new Error("Not implemented yet");
+  await offerSearchFragment.validateAtLeastOneResult();
 });

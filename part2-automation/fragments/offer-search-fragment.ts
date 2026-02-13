@@ -3,7 +3,7 @@ const { I } = inject();
 class OfferSearchFragment {
   // locators
   searchInput = '[data-qa="search-input"]';
-  searchResults = "//sports-search-page";
+  searchResultItems = '.searchResults';
 
   noResultIcon = '//div[@class="errorPage_headerImg"]';
   noResultTextTitle =
@@ -37,6 +37,11 @@ class OfferSearchFragment {
 
     I.assertContain(currentTextTitle, expectedTitle);
     I.assertContain(currentTextDescription, expectedDescription);
+  }
+
+  public async validateAtLeastOneResult(): Promise<void> {
+    const numberOfResults = await I.grabNumberOfVisibleElements(this.searchResultItems);
+    I.assertAbove(numberOfResults, 0);
   }
 }
 
