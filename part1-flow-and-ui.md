@@ -155,3 +155,63 @@ Optional:
 The account creation button becomes enabled once mandatory toggles are activated.
 
 ---
+
+# 4. Alternative Branches Identified
+
+## Alternative Branch 1 – Under 18 Date of Birth (Compliance Critical Path)
+
+**What was tested:** Date of birth validation and legal age gating.
+
+**How to reproduce (based on executed test):**
+
+1. Start the registration flow.
+2. Complete First Name and Last Name steps with valid data.
+3. On the "Date of Birth" screen, enter a DOB that makes the user under 18 (e.g., `13/02/2008`).
+
+**Actual result:**
+
+- The date field is highlighted in red.
+- A blocking error message is displayed stating that the user must wait until 18 years old to bet.
+- Additional compliance warning indicates that providing false information or using a third party's identity may lead to account closure and funds being blocked.
+- "Étape suivante" (Next step) button remains disabled.
+
+**Evidence (Screenshots):**
+
+| iOS                                                                            | Android                                                                                |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| <img src="images/under18_ios.png" alt="Under 18 validation – iOS" width="300"> | <img src="images/under18_android.jpg" alt="Under 18 validation – Android" width="300"> |
+
+**Expected result:**
+
+- User must be strictly blocked from proceeding if under 18.
+- Error messaging must be clear, legally compliant, and unambiguous.
+- The blocking behavior must be consistent across devices and time zones.
+
+**Boundary testing recommended (critical in gambling context):**
+
+- Exactly 18 years old today → should be allowed.
+- 18 years old minus 1 day → should be blocked.
+- Clearly underage (e.g., 17 years old) → blocked.
+- Senior age (e.g., 70+ years old) → allowed.
+- Invalid dates (e.g., `31/02/2000`, `00/00/2000`, alphabetic input) → blocked with proper validation feedback.
+
+---
+
+**Boundary Test Results:**
+
+| Test case                          | Expected                                                 | iOS Result                                                       | Android Result                                                           | Status |
+| ---------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------ | ------ |
+| Under 18 (e.g., 13/02/2008)        | Block user + show regulatory message + disable next step | Blocked with red field + compliance warning + next step disabled | Blocked with same behavior — red field, compliance warning, CTA disabled | ✅ OK  |
+| Exactly 18 years old today         | Allow user to proceed                                    | Allowed to proceed                                               | Allowed to proceed — same as iOS                                         | ✅ OK  |
+| 18 years old minus 1 day           | Block user                                               | Blocked correctly                                                | Blocked correctly — same as iOS                                          | ✅ OK  |
+| Senior age (70–120 years old)      | Allow user to proceed                                    | Allowed to proceed (tested up to 120 years old)                  | Allowed to proceed (tested up to 120 years old)                          | ✅ OK  |
+| Invalid format (non-numeric input) | Block user with format validation                        | Only numeric input allowed (iOS keyboard restriction)            | Only numeric keyboard displayed — non-numeric input prevented            | ✅ OK  |
+| 29/02 valid leap year              | Allow user to proceed                                    | Accepted on valid leap year                                      | Accepted on valid leap year — same as iOS                                | ✅ OK  |
+| 29/02 non-leap year                | Block user                                               | Correctly blocked                                                | Correctly blocked — same as iOS                                          | ✅ OK  |
+
+---
+
+**QA Perspective:**
+Age validation is a compliance-critical control in a regulated gambling environment. The age boundary logic must be precise (no off-by-one errors), robust against manual input manipulation, and aligned with legal requirements.
+
+---
