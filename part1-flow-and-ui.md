@@ -340,3 +340,57 @@ Password validation is a core security control. Real-time feedback improves UX b
 Compliance toggles are a legal requirement in regulated gambling. The current implementation correctly blocks submission when the mandatory toggle is off. However, the age certification and T&C/Privacy acceptance are bundled into a single toggle — from a regulatory standpoint, some jurisdictions may require these to be separate explicit consents (age verification vs. contractual acceptance vs. privacy policy). Additionally, there is no visual distinction (asterisk, label, or color) between the mandatory and optional toggles, which may cause user confusion.
 
 ---
+
+# 5. Edge Cases Worth Testing
+
+## Edge Case 1 – Duplicate Account Detection (Username / Email Already Registered)
+
+**Why it matters:**
+In regulated gambling, multi-accounting is a major compliance concern — it enables bonus abuse, self-exclusion bypass, and fraud. The registration flow must detect and block duplicate accounts.
+
+**Test scenarios:**
+
+| Test case | Expected | iOS Result | Android Result | Status |
+| --- | --- | --- | --- | --- |
+| Username already taken | Block with clear error message at input step | Blocked inline at username step with clear error | Blocked — same as iOS | ✅ OK |
+| Email already registered | Block with clear error message at input step | ❌ No inline validation — generic error only at final submission. An email is sent to the existing account holder informing them they already have an account | ❌ Same as iOS | ⚠️ FAIL |
+| Phone number already registered | Block with clear error message at input step | ❌ No inline validation — generic error at final submission. An email is sent to the existing account holder, but it does not mention the phone number conflict | ❌ Same as iOS | ⚠️ FAIL |
+
+**⚠️ Issue — Email duplicate not detected inline:**
+When registering with an already-used email, the user completes the entire registration flow before receiving a generic error at the very last step. An email is sent to the existing account holder suggesting they log in instead. While the email fallback is a reasonable mitigation, the lack of early detection leads to significant user frustration after filling out a lengthy form.
+
+**⚠️ Issue — Phone number duplicate: potential blocking scenario:**
+When registering with an already-used phone number, the same generic error appears at final submission. An email is sent to the existing account holder — but the email does not mention the phone number conflict. More critically: if a user makes a typo and accidentally enters someone else's phone number, **the real owner of that phone number is silently blocked from registering**. They will never receive the notification email (it is sent to the first user's email address, not theirs), and they have no way to understand why their registration fails. This could result in permanent account creation failure for a legitimate user.
+
+**QA Perspective:**
+Duplicate detection should happen as early as possible in the flow (ideally inline, as the user types or on field blur) rather than only at final submission. Late-stage rejection after filling the entire form creates significant user frustration and drop-off risk. The phone number scenario is particularly concerning — a simple typo by one user can silently block another legitimate user from ever creating an account, with no visibility or recourse.
+
+---
+
+## Edge Case 2 – Special Characters in Name Fields
+
+**Why it matters:**
+French names commonly include hyphens (Jean-Pierre), apostrophes (O'Brien), accented characters (Éloïse, François), and spaces (De La Fontaine). The registration form must handle these correctly without validation errors or data corruption. The first name field includes a tip: "Saisi tes informations comme indiqué sur ta carte d'identité" (Enter your information as shown on your ID card), reinforcing that the input must match official documents.
+
+> **Note:** The last name field does not display this tip — this inconsistency is flagged as a UX observation.
+
+**Test scenarios (tested on both First Name and Last Name fields):**
+
+| Test case | Expected | iOS Result | Android Result | Status |
+| --- | --- | --- | --- | --- |
+| Hyphenated name (e.g., `Jean-Pierre`) | Accepted | Accepted | Accepted — same as iOS | ✅ OK |
+| Hyphens only (e.g., `---`) | Blocked — not a valid name | Blocked | Blocked — same as iOS | ✅ OK |
+| Apostrophe in name (e.g., `O'Brien`) | Accepted | Accepted | Accepted — same as iOS | ✅ OK |
+| Accented characters (e.g., `Éloïse`) | Accepted | Accepted | Accepted — same as iOS | ✅ OK |
+| Name with spaces (e.g., `De La Fontaine`) | Accepted | Accepted | Accepted — same as iOS | ✅ OK |
+| Only spaces (e.g., `   `) | Blocked | Blocked | Blocked — same as iOS | ✅ OK |
+| Numbers in name (e.g., `John123`) | Blocked | Blocked | Blocked — same as iOS | ✅ OK |
+| Emojis in name (e.g., `John 😀`) | Blocked | Blocked | Blocked — same as iOS | ✅ OK |
+
+**⚠️ Issue — Misleading error message priority:**
+When entering a disallowed character as the first input (e.g., a number or emoji), the inline error displayed is "Ton nom doit contenir entre 2 et 50 caractères" (length validation) instead of a character validation error. The user only discovers the character is rejected after adding more characters — because the length rule takes priority over the character rule. This creates confusion: the user sees a length error when the real issue is an invalid character.
+
+**QA Perspective:**
+Name field validation is generally well implemented — hyphens, apostrophes, accented characters, and spaces are correctly accepted, while numbers, emojis, and garbage input are blocked. The main improvement opportunity is in error message priority: character validation errors should take precedence over length errors to avoid misleading feedback.
+
+---
