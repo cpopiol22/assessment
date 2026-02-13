@@ -10,7 +10,7 @@ Feature: Offering Search
     When the user searches matches or competitions with the input Réverbère
     Then the user should should see an error message as search result
       | expectedTitle   | expectedDescription                                                 |
-      | Pas de résultat | Est-ce un match ou une compétition ?Peut être une faute de frappe ? |
+      | Pas de résultat | Aucun joueur, match ou compétition trouvé. Vérifie ta saisie ou essaie une autre recherche. |
 
 
   @atLeastOneResult

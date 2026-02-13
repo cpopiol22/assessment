@@ -2,7 +2,7 @@ const { I } = inject();
 
 class OfferSearchFragment {
   // locators
-  searchInput = "#forms_inputText";
+  searchInput = '[data-qa="search-input"]';
   searchResults = "//sports-search-page";
 
   noResultIcon = '//div[@class="errorPage_headerImg"]';
@@ -20,8 +20,8 @@ class OfferSearchFragment {
         response.status() === 200 &&
         response
           .url()
-          .includes("https://offer.cdn.begmedia.com/api/pub/v4/events"),
-      10
+          .includes("https://offering.begmedia.com/web/offering.access.api/"),
+      10,
     );
   }
 
@@ -29,7 +29,7 @@ class OfferSearchFragment {
     const currentTextTitle = await I.grabTextFrom(this.noResultTextTitle);
     const expectedTitle = dataTable.parse().hashes()[0].expectedTitle;
     const currentTextDescription = await I.grabTextFrom(
-      this.noResultTextDescription
+      this.noResultTextDescription,
     );
     const expectedDescription = dataTable
       .parse()
