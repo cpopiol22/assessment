@@ -215,3 +215,77 @@ The account creation button becomes enabled once mandatory toggles are activated
 Age validation is a compliance-critical control in a regulated gambling environment. The age boundary logic must be precise (no off-by-one errors), robust against manual input manipulation, and aligned with legal requirements.
 
 ---
+
+## Alternative Branch 2 – Invalid Password (Security & Validation Path)
+
+**What was tested:** Password field validation rules and real-time feedback behavior.
+
+**How to reproduce (based on executed test):**
+
+1. Start the registration flow and proceed to the "Password" screen.
+2. Enter passwords that violate one or more of the validation rules:
+   - At least 1 lowercase letter
+   - At least 1 uppercase letter
+   - At least 1 number
+   - Between 8 and 20 characters
+
+**Actual result:**
+
+- Real-time validation checklist is displayed below the password field.
+- Each rule is visually updated as the user types (valid = green check, invalid = red/grey).
+- The "Étape suivante" (Next step) button remains disabled until all rules are satisfied.
+- No submission is possible with an invalid password.
+
+**Evidence (Screenshots):**
+
+| iOS                                                                                  | Android                                                                                      |
+| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| <img src="images/password_invalid_ios.png" alt="Invalid password – iOS" width="300"> | <img src="images/password_invalid_android.jpg" alt="Invalid password – Android" width="300"> |
+
+> **Note:** iOS security policy hides password field content in screenshots. The password input is not visible in the iOS screenshot, but the validation checklist feedback is still visible and was verified during manual testing.
+
+**Expected result:**
+
+- User must not be able to proceed with a password that fails any validation rule.
+- Real-time feedback must clearly indicate which rules are met and which are not.
+- The CTA button must remain disabled until all criteria are satisfied.
+
+**Validation rules tested:**
+
+- At least 1 lowercase letter
+- At least 1 uppercase letter
+- At least 1 number
+- Between 8 and 20 characters
+
+---
+
+**Boundary Test Results:**
+
+| Test case                                  | Expected                                       | iOS Result                                         | Android Result                 | Status |
+| ------------------------------------------ | ---------------------------------------------- | -------------------------------------------------- | ------------------------------ | ------ |
+| Only lowercase (e.g., `abcdefgh`)          | Block — missing uppercase + number             | Blocked — 2 rules marked invalid, CTA disabled     | Blocked — same behavior as iOS | ✅ OK  |
+| Only uppercase (e.g., `ABCDEFGH`)          | Block — missing lowercase + number             | Blocked — 2 rules marked invalid, CTA disabled     | Blocked — same behavior as iOS | ✅ OK  |
+| Only numbers (e.g., `12345678`)            | Block — missing lowercase + uppercase          | Blocked — 2 rules marked invalid, CTA disabled     | Blocked — same behavior as iOS | ✅ OK  |
+| 7 characters (e.g., `Abcde1!`)             | Block — too short                              | Blocked — length rule marked invalid, CTA disabled | Blocked — same behavior as iOS | ✅ OK  |
+| 8 characters valid (e.g., `Abcdef1!`)      | Allow — meets all rules                        | Allowed — all rules green, CTA enabled             | Allowed — same behavior as iOS | ✅ OK  |
+| 20 characters valid                        | Allow — meets all rules                        | Allowed — all rules green, CTA enabled             | Allowed — same behavior as iOS | ✅ OK  |
+| 21 characters                              | Block — too long                               | Blocked — length rule marked invalid, CTA disabled | Blocked — same behavior as iOS | ✅ OK  |
+| Special characters only (e.g., `!@#$%^&*`) | Block — missing lowercase + uppercase + number | Blocked — 3 rules marked invalid, CTA disabled     | Blocked — same behavior as iOS | ✅ OK  |
+| Valid password (e.g., `Test1234`)          | Allow — meets all rules                        | Allowed — all rules green, CTA enabled             | Allowed — same behavior as iOS | ✅ OK  |
+| Empty field                                | Block — all rules invalid                      | Blocked — all rules marked invalid, CTA disabled   | Blocked — same behavior as iOS | ✅ OK  |
+| Password matches username                  | Block — password must differ from username     | Blocked — error displayed: "Ton mot de passe doit être différent de ton pseudo", CTA disabled | Blocked — same behavior as iOS | ✅ OK  |
+
+> **Note:** When the password matches the username, the entire validation checklist disappears and is replaced by a single error message: "Ton mot de passe doit être différent de ton pseudo". The standard rules (lowercase, uppercase, number, length) are no longer visible. This means the user loses all feedback on the other validation criteria while this error is active.
+
+---
+
+**⚠️ Security Observation — Password persisted locally after app kill:**
+During testing, it was observed that all registration data — including the password — is persisted locally when the app is killed mid-registration. Upon reopening the app, the password field is pre-filled and can be revealed in clear text via the visibility toggle (eye icon). While the account does not yet exist, this exposes the user's password pattern (generic passwords, prefix-based construction) to anyone with physical access to the device. This could help compromise the user's other accounts. **Sensitive fields like passwords should be cleared on app termination or session expiry**, even if other form fields are retained for convenience. Severity: **High**.
+
+**UX Observation — No password confirmation field:**
+The registration flow does not include a password confirmation field. On mobile, typos are common due to smaller keyboards and autocorrect behavior. A user who mistypes their password during registration will only discover the error at their next login attempt, forcing them through a password reset flow. Adding a confirmation field would prevent this friction at minimal cost.
+
+**QA Perspective:**
+Password validation is a core security control. Real-time feedback improves UX by guiding the user, but the enforcement must be strict — no bypass should be possible regardless of input method. Note: the app does not appear to enforce special character requirements or check against common/breached passwords, which could be a security improvement opportunity. Additionally, when the password matches the username, the validation checklist is entirely replaced by a single error message — the user loses visibility on all other password rules, which is a UX inconsistency.
+
+---
